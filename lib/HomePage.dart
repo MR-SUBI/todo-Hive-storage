@@ -1,6 +1,6 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:todoapp/data/database.dart';
 import 'package:todoapp/util/dilogBox.dart';
 import 'package:todoapp/util/todo_tile.dart';
 
@@ -12,11 +12,28 @@ class HomePageTo extends StatefulWidget {
 }
 
 class _HomePageToState extends State<HomePageTo> {
+
+  //reference the hive box
+  final _myBox = Hive.box('myBox');
+  TodoDatabase db = TodoDatabase();
+
   final _controller = TextEditingController();
 
-  List todolist = [
-   
-  ];
+  @override
+  void initState() {
+
+      if(_myBox.get("TODOLIST")== null){
+        db.createinitialData();
+
+      }
+      else{
+        db.loadData();
+      }
+
+
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +49,12 @@ class _HomePageToState extends State<HomePageTo> {
           child: Icon(Icons.add),
         ),
         body: ListView.builder(
-          itemCount: todolist.length,
+          itemCount: db.todolist.length,
           itemBuilder: ((context, index) {
             return TodoTile(
 
-                taskName: todolist[index][0],
-                taskComplete: todolist[index][1],
+                taskName: db.todolist[index][0],
+                taskComplete: db.todolist[index][1],
                 deleteFunction: (context) =>deleteTask(index) ,
                 onChanged: (value) => checkboxChanged(value, index));
           }),
@@ -47,13 +64,16 @@ class _HomePageToState extends State<HomePageTo> {
   //checkbox taped;
   void checkboxChanged(bool? value, int index) {
     setState(() {
-      todolist[index][1] = !todolist[index][1];
+      db.todolist[index][1] = !db.todolist[index][1];
+
     });
+    db.uPDATEData();
   }
   void deleteTask(int index){
     setState(() {
-      todolist.removeAt(index); 
+      db.todolist.removeAt(index); 
     });
+    db.uPDATEData();
 
   }
 
@@ -67,13 +87,17 @@ class _HomePageToState extends State<HomePageTo> {
             onCancel: () => Navigator.of(context).pop(),
           );
         });
+    db.uPDATEData();
+
   }
 
   void saveNewTask() {
     setState(() {
-    todolist.add([_controller.text, false]);
+    db.todolist.add([_controller.text, false]);
       
     });
     Navigator.of(context).pop();
+    db.uPDATEData();
+
   }
 }
