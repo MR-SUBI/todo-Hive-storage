@@ -35,8 +35,10 @@ class _HomePageToState extends State<HomePageTo> {
           itemCount: todolist.length,
           itemBuilder: ((context, index) {
             return TodoTile(
+
                 taskName: todolist[index][0],
                 taskComplete: todolist[index][1],
+                deleteFunction: (context) =>deleteTask(index) ,
                 onChanged: (value) => checkboxChanged(value, index));
           }),
         ));
@@ -47,6 +49,12 @@ class _HomePageToState extends State<HomePageTo> {
     setState(() {
       todolist[index][1] = !todolist[index][1];
     });
+  }
+  void deleteTask(int index){
+    setState(() {
+      todolist.removeAt(index); 
+    });
+
   }
 
   void createNewTask() {
