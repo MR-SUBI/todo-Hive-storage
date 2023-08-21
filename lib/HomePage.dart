@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:todoapp/util/dilogBox.dart';
 import 'package:todoapp/util/todo_tile.dart';
 
 class HomePageTo extends StatefulWidget {
@@ -11,18 +12,12 @@ class HomePageTo extends StatefulWidget {
 }
 
 class _HomePageToState extends State<HomePageTo> {
+  final _controller = TextEditingController();
+
   List todolist = [
-    ["Make Project", false],
-    ["Make book", false],
+   
   ];
 
-  //checkbox taped;
-  void checkboxChanged(bool? value, int index){
-    setState(() {
-      todolist[index][1] = !todolist[index][1];
-    });
-
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,6 +26,10 @@ class _HomePageToState extends State<HomePageTo> {
           title: Text('TO DO'),
           centerTitle: true,
           elevation: 0,
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: createNewTask,
+          child: Icon(Icons.add),
         ),
         body: ListView.builder(
           itemCount: todolist.length,
@@ -41,5 +40,32 @@ class _HomePageToState extends State<HomePageTo> {
                 onChanged: (value) => checkboxChanged(value, index));
           }),
         ));
+  }
+
+  //checkbox taped;
+  void checkboxChanged(bool? value, int index) {
+    setState(() {
+      todolist[index][1] = !todolist[index][1];
+    });
+  }
+
+  void createNewTask() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return DialogBox(
+            controller: _controller,
+            onSave: saveNewTask,
+            onCancel: () => Navigator.of(context).pop(),
+          );
+        });
+  }
+
+  void saveNewTask() {
+    setState(() {
+    todolist.add([_controller.text, false]);
+      
+    });
+    Navigator.of(context).pop();
   }
 }
